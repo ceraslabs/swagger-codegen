@@ -34,7 +34,9 @@ class BasicJavaGenerator extends BasicGenerator {
     "Double",
     "Integer",
     "Long",
-    "Float")
+    "Float",
+    "file",
+    "File")
 
   /**
    * We are using java objects instead of primitives to avoid showing default
@@ -50,6 +52,7 @@ class BasicJavaGenerator extends BasicGenerator {
     "float" -> "Float",
     "long" -> "Long",
     "double" -> "Double",
+    "file" -> "File",
     "object" -> "Object")
 
   // location of templates
@@ -77,7 +80,8 @@ class BasicJavaGenerator extends BasicGenerator {
     "Date" -> "java.util.Date",
     "Array" -> "java.util.*",
     "ArrayList" -> "java.util.*",
-    "List" -> "java.util.*")
+    "List" -> "java.util.*",
+    "File" -> "java.io.File")
 
   // package for models
   override def modelPackage = Some("com.wordnik.client.model")

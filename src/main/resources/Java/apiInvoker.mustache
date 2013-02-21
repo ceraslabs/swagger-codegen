@@ -13,12 +13,18 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.jersey.api.client.WebResource.Builder;
+import com.sun.jersey.multipart.file.FileDataBodyPart;
+import com.sun.jersey.multipart.BodyPart;
+import com.sun.jersey.multipart.FormDataBodyPart;
+import com.sun.jersey.multipart.FormDataMultiPart;
+import com.sun.jersey.multipart.impl.MultiPartWriter;
 
 import javax.ws.rs.core.MediaType;
 
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.io.File;
 import java.io.IOException;
 
 public class ApiInvoker {
@@ -71,7 +77,7 @@ public class ApiInvoker {
     }
   }
 
-  public String invokeAPI(String host, String path, String method, Map<String, String> queryParams, Object body, Map<String, String> headerParams) throws ApiException {
+  public String invokeAPI(String host, String path, String method, Map<String, String> queryParams, Map<String, Object> bodyParams, Map<String, String> headerParams) throws ApiException {
     Client client = getClient(host);
 
     StringBuilder b = new StringBuilder();
@@ -86,7 +92,22 @@ public class ApiInvoker {
     }
     String querystring = b.toString();
 
-    Builder builder = client.resource(host + path + querystring).type("application/json");
+    FormDataMultiPart form = new FormDataMultiPart();
+
+    for(String key : bodyParams.keySet()) {
+      Object value = bodyParams.get(key);
+      if (value != null){
+        if (value instanceof File) form.bodyPart(new FileDataBodyPart(key, (File)value));
+        else if (value instanceof String) form.bodyPart(new FormDataBodyPart(key, (String)value));
+        else throw new ApiException(400, "Unsupport type for parameter " + key);
+      }
+    }
+
+    if (form.getBodyParts().isEmpty()) {
+      form.bodyPart(new BodyPart("", MediaType.TEXT_PLAIN_TYPE));
+    }
+
+    Builder builder = client.resource(host + path + querystring).type(MediaType.MULTIPART_FORM_DATA);
     for(String key : headerParams.keySet()) {
       builder.header(key, headerParams.get(key));
     }
@@ -102,13 +123,13 @@ public class ApiInvoker {
       response = (ClientResponse) builder.get(ClientResponse.class);
     }
     else if ("POST".equals(method)) {
-        response = builder.post(ClientResponse.class, serialize(body));
+        response = builder.post(ClientResponse.class, form);
     }
     else if ("PUT".equals(method)) {
-      response = builder.put(ClientResponse.class, serialize(body));
+      response = builder.put(ClientResponse.class, form);
       }
     else if ("DELETE".equals(method)) {
-        response = builder.delete(ClientResponse.class, serialize(body));
+        response = builder.delete(ClientResponse.class);
     }
     else {
       throw new ApiException(500, "unknown method type " + method);
@@ -125,7 +146,9 @@ public class ApiInvoker {
 
   private Client getClient(String host) {
   if(!hostMap.containsKey(host)) {
-    Client client = Client.create();
+    ClientConfig cc = new DefaultClientConfig();
+    cc.getClasses().add(MultiPartWriter.class);
+    Client client = Client.create(cc);
     client.addFilter(new LoggingFilter());
         hostMap.put(host, client);
   }

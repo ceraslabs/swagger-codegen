@@ -200,7 +200,6 @@ class Codegen(config: CodegenConfig) {
   }
 
   def apiToMap(path: String, operation: Operation): Map[String, AnyRef] = {
-    var bodyParam: Option[String] = None
     var queryParams = new ListBuffer[AnyRef]
     val pathParams = new ListBuffer[AnyRef]
     val headerParams = new ListBuffer[AnyRef]
@@ -229,13 +228,9 @@ class Codegen(config: CodegenConfig) {
         }
         param.paramType match {
           case "body" => {
-            params += "paramName" -> "body"
-            params += "baseName" -> "body"
-            param.required match {
-              case true => params += "required" -> "true"
-              case _ =>
-            }
-            bodyParam = Some("body")
+            params += "paramName" -> config.escapeReservedWord(param.name)
+            params += "baseName" -> param.name
+            params += "required" -> param.required.toString
             bodyParams += params.clone
           }
           case "path" => {
@@ -280,6 +275,11 @@ class Codegen(config: CodegenConfig) {
       case _ => queryParams.last.asInstanceOf[HashMap[String, String]] -= "hasMore"
     }
 
+    bodyParams.size match {
+      case 0 =>
+      case _ => bodyParams.last.asInstanceOf[HashMap[String, String]] -= "hasMore"
+    }
+
     pathParams.size match {
       case 0 =>
       case _ => pathParams.last.asInstanceOf[HashMap[String, String]] -= "hasMore"
@@ -318,7 +318,6 @@ class Codegen(config: CodegenConfig) {
         "summary" -> operation.summary,
         "notes" -> operation.notes,
         "deprecated" -> operation.`deprecated`,
-        "bodyParam" -> bodyParam,
         "allParams" -> sp,
         "bodyParams" -> bodyParams.toList,
         "pathParams" -> pathParams.toList,
