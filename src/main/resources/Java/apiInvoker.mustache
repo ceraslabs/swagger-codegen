@@ -138,9 +138,27 @@ public class ApiInvoker {
       return (String) response.getEntity(String.class);
     }
     else {
-      throw new ApiException(
-                response.getClientResponseStatus().getStatusCode(),
-                response.getEntity(String.class));      
+      String strResponse = response.getEntity(String.class);
+      Map<String, String> jsonResponse = null;
+      try {
+        ObjectMapper mapper = new ObjectMapper();
+        jsonResponse = mapper.readValue(strResponse, Map.class);
+      }
+      catch (IOException ex) {
+        jsonResponse = new HashMap<String, String>();
+      }
+
+      if (jsonResponse.containsKey("error_message")) {
+        throw new ApiException(
+                  response.getClientResponseStatus().getStatusCode(),
+                  jsonResponse.get("error_message"),
+                  jsonResponse.get("trace"));
+      }
+      else {
+        throw new ApiException(
+                  response.getClientResponseStatus().getStatusCode(),
+                  strResponse);
+      }
     }
   }
 
