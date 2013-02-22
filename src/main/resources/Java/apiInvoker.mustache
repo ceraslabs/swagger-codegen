@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 public class ApiInvoker {
   private static ApiInvoker INSTANCE = new ApiInvoker();
@@ -42,6 +44,15 @@ public class ApiInvoker {
 
   public String escapeString(String str) {
     return str;
+  }
+
+  public String encodeUrl(String url) {
+    try {
+      return URLEncoder.encode(url, "UTF-8");
+    }
+    catch (UnsupportedEncodingException ex) {
+      return url;
+    }
   }
 
   public static Object deserialize(String json, String containerType, Class cls) throws ApiException {
@@ -87,7 +98,7 @@ public class ApiInvoker {
       if (value != null){
         if(b.toString().length() == 0) b.append("?");
         else b.append("&");
-        b.append(escapeString(key)).append("=").append(escapeString(value));
+        b.append(encodeUrl(key)).append("=").append(encodeUrl(value));
       }
     }
     String querystring = b.toString();
