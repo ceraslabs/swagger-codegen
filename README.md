@@ -64,6 +64,130 @@ mvn package
 
 Now you should see the library being package as Jar files in the folder patterndeployer/java/target.
 
+### To use the generated client
+
+First, you need to import the generated Jar file as library. Then coding. A sample client program is as below:
+
+```java
+import com.patterndeployer.*;
+import com.patterndeployer.model.*;
+import com.patterndeployer.api.*;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
+import java.io.*;
+import java.net.*;
+
+public class TestClient{
+
+    static final String pdUser = "YOUR_USERNAME";
+    static final String pdPass = "YOUR_PASSWORD";
+    static final String basePath = "http://YOUR_PATTERN_DEPLOYER_SERVER/api";
+
+    static class MyAuthenticator extends Authenticator {
+        public PasswordAuthentication getPasswordAuthentication() {
+            System.err.println("Feeding username and password for " + getRequestingScheme());
+            return (new PasswordAuthentication(pdUser, pdPass.toCharArray()));
+        }
+    }
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		Authenticator.setDefault(new MyAuthenticator());
+
+		try 
+		{		
+			Uploaded_filesApi fApi = new Uploaded_filesApi();
+			fApi.setBasePath(basePath);
+
+			for (UploadedFile f : fApi.getFiles().getAll())
+			{
+				if (f.getFileName().equals("myapp.war")) {
+					fApi.deleteFileById(f.getId());
+				}
+				if (f.getFileName().equals("mydb.sql")) {
+					fApi.deleteFileById(f.getId());
+				}
+				if (f.getFileName().equals("testkey.pem")) {
+					fApi.deleteFileById(f.getId());
+				}
+			}
+			fApi.createFile(new File("myapp.war"), "war_file", null, null, null);
+			fApi.createFile(new File("mydb.sql"), "sql_script_file", null, null, null);
+			fApi.createFile(new File("testkey.pem"), "identity_file", null, "YOUR_KEY_PAIR_ID", "ec2");
+
+			CredentialsApi cApi = new CredentialsApi();
+			cApi.setBasePath(basePath);
+
+			for (Credential c : cApi.getCredentials().getAll())
+			{
+				if (c.getName().equals("mykey")) {
+					cApi.deleteCredentialById(c.getId());
+				}
+			}
+			cApi.createCredential("mykey", "ec2", "YOUR_AWS_ACCESS_KEY_ID", "YOUR_AWS_SECRET_ACCESS_KEY", null, null, null, null);
+			
+			TopologiesApi tApi = new TopologiesApi();
+			tApi.setBasePath(basePath);
+
+			for (Topology t : tApi.getTopologies().getAll())
+			{
+				if (t.getName().equals("test_topology")) {
+					tApi.deleteTopologyById(t.getId());
+				}
+			}
+			Topology myTopology = tApi.createTopology(new File("test_topology.xml"), null, null, null);
+			
+			//deploy
+			tApi.modifyTopologyById(myTopology.getId(), "deploy", null, null);
+
+			//wait for finish
+			while (true)
+			{
+				boolean repaired = false;
+				Thread.sleep(30000);
+				
+				myTopology = tApi.getTopologyById(myTopology.getId());
+				String status = myTopology.getDeployment().getStatus();
+				if (status.equals("deployed")) {
+					break;
+				}
+				else if (status.equals("failed")) {
+					if (!repaired) {
+						repaired = true;
+						tApi.modifyTopologyById(myTopology.getId(), "repair", null, null);
+					}
+					else {
+					  throw new RuntimeException(myTopology.getDeployment().getError());
+					}
+				}
+				else if (status.equals("deploying")) {
+					System.out.println("waiting");
+				}
+				else {
+					throw new RuntimeException("unexpected status " + status);
+				}
+			}
+			
+			//confirm application is up
+			for (Application app : myTopology.getDeployment().getApplications())
+			{
+				System.out.println("Application " + app.getName() + " deployed in " + app.getUrl());
+			}
+
+	    //undeploy
+	    myTopology = tApi.modifyTopologyById(myTopology.getId(), "undeploy", null, null);
+	    System.out.println("Status after undeploy operation: " + myTopology.getDeployment().getStatus());
+		} 
+		catch (Exception ex)
+		{
+		  System.out.print(ex);
+		}
+	}
+}
+```
+
 License
 -------
 
