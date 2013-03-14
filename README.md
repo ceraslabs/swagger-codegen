@@ -5,8 +5,13 @@ This is the swagger codegen project customized for [Pattern Deployer](https://gi
 Pattern Deployer server.  You can find out more about both the spec and the framework at 
 http://swagger.wordnik.com.  For more information about Pattern Deployer's APIs, please visit https://github.com/ceraslabs/pattern-deployer/wiki.  
 
-### Prerequisites
-You need the following installed and available in your $PATH:
+### Supported programming languages
+You can generate the client library in the following language(s):
+
+* [Java](http://java.oracle.com)
+
+### Generator Prerequisites
+You need a machine as generator, and have the following dependencies installed and available in your $PATH:
 
 * [Java 1.6](http://java.oracle.com)
 
