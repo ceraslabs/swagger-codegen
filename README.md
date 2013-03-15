@@ -176,9 +176,9 @@ public class TestClient{
 				System.out.println("Application " + app.getName() + " deployed in " + app.getUrl());
 			}
 
-	    //undeploy
-	    myTopology = tApi.modifyTopologyById(myTopology.getId(), "undeploy", null, null);
-	    System.out.println("Status after undeploy operation: " + myTopology.getDeployment().getStatus());
+			//undeploy
+			myTopology = tApi.modifyTopologyById(myTopology.getId(), "undeploy", null, null);
+			System.out.println("Status after undeploy operation: " + myTopology.getDeployment().getStatus());
 		} 
 		catch (Exception ex)
 		{
