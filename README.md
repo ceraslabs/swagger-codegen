@@ -143,9 +143,9 @@ public class TestClient{
 			tApi.modifyTopologyById(myTopology.getId(), "deploy", null, null);
 
 			//wait for finish
+			boolean repaired = false;
 			while (true)
 			{
-				boolean repaired = false;
 				Thread.sleep(30000);
 				
 				myTopology = tApi.getTopologyById(myTopology.getId());
