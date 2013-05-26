@@ -13,13 +13,44 @@ You need a machine as generator, and have the following dependencies installed a
 
 * [Java 1.6](http://java.oracle.com)
 
+  For example(In Ubuntu-12.04):
+  ```
+  apt-get install openjdk-6-jdk
+  export JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64
+  export PATH=${PATH}:${JAVA_HOME}/bin
+  ```
+
 * [Apache maven 3.0.3 or greater](http://maven.apache.org/)
+
+  For example:
+  ```
+  apt-get install maven
+  ```
 
 * [Scala 2.9.1](http://www.scala-lang.org)
 
-After cloning the project, you need to build it from source with this command:
+  For example:
+  ```
+  apt-get install scala
+  ```
+
+* [Git](http://git-scm.com/)
+
+  For example:
+  ```
+  apt-get install git-core
+  ```
+
+### Clone the project
+```
+git clone git://github.com/ceraslabs/swagger-codegen.git
+```
+
+
+After cloning the project, you need to build it from source:
 
 ```
+cd swagger-codegen
 mvn package
 ```
 
