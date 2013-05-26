@@ -1,12 +1,10 @@
 # Swagger Code Generator
 
 ## Overview
-This is the swagger codegen project customized for [Pattern Deployer](https://github.com/ceraslabs/pattern-deployer), which allows generation of client libraries automatically from a 
-Pattern Deployer server.  You can find out more about both the spec and the framework at 
-http://swagger.wordnik.com.  For more information about Pattern Deployer's APIs, please visit https://github.com/ceraslabs/pattern-deployer/wiki.  
+This is a [swagger codegen project](https://github.com/wordnik/swagger-codegen) customized for [Pattern Deployer](https://github.com/ceraslabs/pattern-deployer), which allows generation of client libraries automatically from a 
+Pattern Deployer server.  You can find out more about both the spec and the framework at https://github.com/ceraslabs/pattern-deployer/wiki.  
 
-### Supported programming languages
-You can generate the client library in the following language(s):
+### Supported programming language(s)
 
 * [Java](http://java.oracle.com)
 
@@ -18,8 +16,6 @@ You need a machine as generator, and have the following dependencies installed a
 * [Apache maven 3.0.3 or greater](http://maven.apache.org/)
 
 * [Scala 2.9.1](http://www.scala-lang.org)
-
-You also need to add the scala binary to your PATH.
 
 After cloning the project, you need to build it from source with this command:
 
@@ -34,24 +30,10 @@ You can build a Java client against Pattern Deployer's API as follows:
 ./bin/runscala.sh patterndeployer/java/JavaPatterndeployer.scala http://YOUR_SERVER_URL/api_docs.json
 ```
 
-This will run the script in [patterndeployer/java/JavaPatterndeployer.scala](https://github.com/ceraslabs/swagger-codegen/blob/master/patterndeployer/java/JavaPatterndeployer.scala) and create the client.  You can then
-compile and package the client:
+This will run the script in [patterndeployer/java/JavaPatterndeployer.scala](https://github.com/ceraslabs/swagger-codegen/blob/master/patterndeployer/java/JavaPatterndeployer.scala) and create the client.
 
-```
-cd patterndeployer/java
-mvn package
-```
-
-You will probably want to override some of the defaults--like packages, etc.  For doing this, just modify the scala
+If you want to override some of the defaults--like packages, etc.  For doing this, just modify the scala
 script [JavaPatterndeployer.scala](https://github.com/ceraslabs/swagger-codegen/blob/master/patterndeployer/java/JavaPatterndeployer.scala) with the overrides you want.
-
-### Modifying the client library format
-Don't like the default swagger client syntax?  Want a different language supported?  No problem!  Swagger codegen
-processes mustache templates with the [scalate](http://scalate.fusesource.org/) engine.  You can modify our templates or
-make your own.
-
-You can look at [src/main/resources/Java](https://github.com/ceraslabs/swagger-codegen/tree/master/src/main/resources/Java) for examples.  To make your own templates, modify the files
-in that folder.  It actually is that easy.
 
 ### To package the client library
 
